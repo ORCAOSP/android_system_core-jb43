@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 The Android Open Source Project
+ * Copyright (C) 2010 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <errno.h>
 
-#define LOG_TAG "FrameworkCommand"
+extern int sdcard_main(int argc, char **argv);
 
-#include <cutils/log.h>
-
-#include <sysutils/FrameworkCommand.h>
-
-FrameworkCommand::FrameworkCommand(const char *cmd) {
-    mCommand = cmd;
-}
-
-int FrameworkCommand::runCommand(SocketClient *c, int argc, char **argv) {
-    SLOGW("Command %s has no run handler!", getCommand());
-    errno = ENOSYS;
-    return -1;
+int main(int argc, char **argv) {
+    return sdcard_main(argc, argv);
 }

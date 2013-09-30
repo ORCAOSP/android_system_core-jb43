@@ -62,6 +62,7 @@ static struct flag_list mount_flags[] = {
     { "private",    MS_PRIVATE },
     { "slave",      MS_SLAVE },
     { "shared",     MS_SHARED },
+    { "sync",       MS_SYNCHRONOUS },
     { "defaults",   0 },
     { 0,            0 },
 };
@@ -192,14 +193,8 @@ static int parse_flags(char *flags, struct flag_list *fl,
                 /* It's not a known flag, so it must be a filesystem specific
                  * option.  Add it to fs_options if it was passed in.
                  */
-#ifndef HAVE_SELINUX
-                /* Drop context option from non-selinux builds */
-                if (strncmp(p,"context=",8))
-#endif
-                {
-                    strlcat(fs_options, p, fs_options_len);
-                    strlcat(fs_options, ",", fs_options_len);
-                }
+                strlcat(fs_options, p, fs_options_len);
+                strlcat(fs_options, ",", fs_options_len);
             } else {
                 /* fs_options was not passed in, so if the flag is unknown
                  * it's an error.
