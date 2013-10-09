@@ -66,7 +66,7 @@
 
 #define BATTERY_UNKNOWN_TIME    (2 * MSEC_PER_SEC)
 #define POWER_ON_KEY_TIME       (2 * MSEC_PER_SEC)
-#define UNPLUGGED_SHUTDOWN_TIME (10 * MSEC_PER_SEC)
+#define UNPLUGGED_SHUTDOWN_TIME (2 * MSEC_PER_SEC)
 
 #define BATTERY_FULL_THRESH     95
 
@@ -930,6 +930,7 @@ static void set_next_key_check(struct charger *charger,
 
 static void process_key(struct charger *charger, int code, int64_t now)
 {
+    struct animation *batt_anim = charger->batt_anim;
     struct key_state *key = &charger->keys[code];
     int64_t next_key_check;
 
@@ -948,8 +949,17 @@ static void process_key(struct charger *charger, int code, int64_t now)
         } else {
             /* if the power key got released, force screen state cycle */
             if (key->pending) {
-                request_suspend(false);
-                kick_animation(charger->batt_anim);
+                if (!batt_anim->run) {
+                    request_suspend(false);
+                    kick_animation(charger->batt_anim);
+                } else {
+                    reset_animation(batt_anim);
+                    charger->next_screen_transition = -1;
+                    gr_fb_blank(true);
+                    set_backlight(false);
+                    if (charger->num_supplies_online > 0)
+                        request_suspend(true);
+                }
             }
         }
     } else {
